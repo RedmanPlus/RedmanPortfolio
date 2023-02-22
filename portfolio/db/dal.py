@@ -9,7 +9,7 @@ from portfolio.db.models import User, Session
 class UserDAL:
 
     def __init__(self, session: AsyncSession) -> None:
-        self.session = session
+        self.db = session
     
     async def create_user(
         self, username: str, password: str, email: str
@@ -21,10 +21,26 @@ class UserDAL:
             is_anonymous=False,
         )
 
-        self.session.add(user)
-        await self.session.flush()
+        self.db.add(user)
+        await self.db.flush()
 
         return user
+
+    async def get_user_by_id(self, user_id: int) -> User:
+
+        query = select(User).where(User.user_id == user_id)
+
+        results = await self.db.scalars(query)
+
+        return results.first()
+
+    async def get_user_by_email(self, user_email: str) -> User:
+
+        query = select(User).where(User.email == user_email)
+
+        results = await self.db.scalars(query)
+
+        return results.first()
 
 
 class SessionDAL:
@@ -57,6 +73,6 @@ class SessionDAL:
         )
 
         self.db.add_all([user, session])
-        await self.db.commit()
+        await self.db.flush()
 
         return session

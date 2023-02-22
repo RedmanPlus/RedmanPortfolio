@@ -1,12 +1,12 @@
 import uvicorn
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.requests import Request
 
 from portfolio.db.dal import SessionDAL
 from portfolio.db.session import get_session
-from portfolio.views.views import users
-from portfolio.views.login import login
+from portfolio.views.user import users
+from portfolio.views.auth import auth
 
 
 app = FastAPI()
@@ -30,7 +30,7 @@ async def get_user(request: Request, call_next):
     return responce
 
 app.include_router(users, prefix="/user", tags=["user"])
-app.include_router(login, prefix="/auth", tags=["auth"])
+app.include_router(auth, prefix="/auth", tags=["auth"])
 
 
 if __name__ == "__main__":

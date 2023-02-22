@@ -10,10 +10,10 @@ from portfolio.dependencies import session
 from portfolio.models import OutputUser, LoginUser
 
 
-login = APIRouter()
+auth = APIRouter()
 
 
-@login.post("/login", response_model=OutputUser)
+@auth.post("/login", response_model=OutputUser)
 async def login_user(
     data: LoginUser, request: Request
 ) -> OutputUser:
@@ -34,16 +34,16 @@ async def login_user(
     )
 
 
-@login.post("/logout")
+@auth.post("/logout")
 async def logout_user(
     request: Request, db: AsyncSession = Depends(get_db)
 ):
     session_obj = await session(request)
 
-    session.user = None
-    session.uid = None
+    session_obj.user = None
+    session_obj.uid = None
 
-    db.add(session)
-    await db.commit()
+    db.add(session_obj)
+    await db.flush()
 
     return {"success": "you've logged out"}
