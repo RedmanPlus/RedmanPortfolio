@@ -8,9 +8,10 @@ from portfolio.BL.user_handlers import (
     create_user,
     get_user_by_id,
     get_user_by_email,
+    update_user,
 )
 from portfolio.db.session import get_db
-from portfolio.models import InputUser, OutputUser
+from portfolio.models import InputUser, OutputUser, NewOutputUser, UserData
 
 users = APIRouter()
 
@@ -39,11 +40,21 @@ async def get_user_from_email(
         )
 
 
-@users.post("/", response_model=OutputUser)
+@users.post("/", response_model=NewOutputUser)
 async def post_user(
     body: InputUser, db: AsyncSession = Depends(get_db)
-) -> OutputUser:
+) -> NewOutputUser:
     try:
         return await create_user(body, db)
+    except IntegrityError as err:
+        raise HTTPException(status_code=503, detail=f"Database Error: {err}")
+
+
+@users.put("/{user_id}", response_model=OutputUser)
+async def fill_out_user_data(
+    user_id: int, body: UserData, db: AsyncSession = Depends(get_db)
+) -> OutputUser:
+    try:
+        return await update_user(user_id, body, db)
     except IntegrityError as err:
         raise HTTPException(status_code=503, detail=f"Database Error: {err}")

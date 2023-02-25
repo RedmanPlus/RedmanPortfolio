@@ -9,14 +9,22 @@ class ORMModel(BaseModel):
 
 
 class InputUser(ORMModel):
-    username: str
-    password: str
     email: EmailStr
 
 
 class LoginUser(ORMModel):
     username: str
     password: str
+
+
+class UserData(BaseModel):
+    username: str
+    password_1: str
+    password_2: str
+
+
+class NewOutputUser(ORMModel):
+    email: EmailStr
 
 
 class OutputUser(ORMModel):
