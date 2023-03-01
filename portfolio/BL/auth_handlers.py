@@ -1,11 +1,9 @@
-from fastapi import Depends
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from portfolio.db.models import User, Session, EmailToken
-from portfolio.db.session import get_db
 from portfolio.models import LoginUser
 
 
@@ -23,10 +21,11 @@ def verify_password(password: str, hashed_password: str) -> bool:
 async def authenticate(
     user_data: LoginUser, db: AsyncSession
 ) -> User | None:
-    q = select(User).where(User.username == user_data.username)
+    async with db.begin():
+        q = select(User).where(User.username == user_data.username)
 
-    query = await db.scalars(q)
-    user = query.first()
+        query = await db.scalars(q)
+        user = query.first()
 
     if not verify_password(user_data.password, user.password):
         return None
@@ -34,35 +33,42 @@ async def authenticate(
     return user
 
 
-async def login(
-    user: User, session: Session, db: AsyncSession
-):
-
+async def _login(user: User, session: Session, db: AsyncSession):
     session.user = user
     session.uid = user.user_id
 
     db.add(session)
-    await db.commit()
+
+
+async def login(
+    user: User, session: Session, db: AsyncSession
+):
+    if db.in_transaction:
+        await _login(user, session, db)
+    else:
+        async with db.begin():
+            await _login(user, session, db)
+            await db.commit()
 
 
 async def handle_email_token(
     session: Session, token_key: str, db: AsyncSession
 ) -> User | None:
-    
-    q = select(EmailToken) \
-        .where(EmailToken.key == token_key) \
-        .options(selectinload(EmailToken.user))
-    query = await db.scalars(q)
+    async with db.begin():
+        q = select(EmailToken) \
+            .where(EmailToken.key == token_key) \
+            .options(selectinload(EmailToken.user))
+        query = await db.scalars(q)
 
-    token = query.first()
+        token = query.first()
 
-    if not token:
-        raise Exception()
+        if not token:
+            raise Exception()
 
-    user = token.user
+        user = token.user
 
-    await login(user, session, db)
-    await db.delete(token)
-    await db.flush()
+        await login(user, session, db)
+        await db.delete(token)
+        await db.flush()
 
     return user

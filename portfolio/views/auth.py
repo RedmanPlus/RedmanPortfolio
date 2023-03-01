@@ -28,7 +28,7 @@ async def login_user(
             detail="User with these credantials does not exists"
         )
 
-    session_obj = await session(request)
+    session_obj = await session(request, db)
 
     await login(user, session_obj, db)
 
@@ -42,7 +42,7 @@ async def login_user(
 async def logout_user(
     request: Request, db: AsyncSession = Depends(get_db)
 ):
-    session_obj = await session(request)
+    session_obj = await session(request, db)
 
     session_obj.user = None
     session_obj.uid = None
@@ -57,7 +57,7 @@ async def logout_user(
 async def confirm_user_from_email_token(
     request: Request, token: str, db: AsyncSession = Depends(get_db)
 ):
-    session_obj = await session(request)
+    session_obj = await session(request, db)
     user = await handle_email_token(session_obj, token, db)
 
     return NewOutputUser(

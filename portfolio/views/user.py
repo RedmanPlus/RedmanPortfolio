@@ -1,4 +1,4 @@
-from fastapi import Depends 
+from fastapi import Depends, Request 
 from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 from sqlalchemy.exc import IntegrityError
@@ -11,9 +11,23 @@ from portfolio.BL.user_handlers import (
     update_user,
 )
 from portfolio.db.session import get_db
+from portfolio.dependencies import user
 from portfolio.models import InputUser, OutputUser, NewOutputUser, UserData
 
 users = APIRouter()
+
+
+@users.get("/me", response_model=NewOutputUser)
+async def get_me(request: Request) -> NewOutputUser:
+
+    me = user(request)
+    if me.is_anonymous:
+        raise HTTPException(
+            status_code=404, detail="You're not logged in"
+        )
+    return NewOutputUser(
+        email=me.email
+    )
 
 
 @users.get("/{user_id}", response_model=OutputUser)

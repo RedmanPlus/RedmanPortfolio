@@ -38,14 +38,14 @@ class UserDAL:
         message = MessageSchema(
             subject="Регистрация на сервисе",
             recipients=[user.email],
-            body={"token": token.key},
+            tempalate_body={"token": token.key},
             subtype=MessageType.html
         )
 
         fm = FastMail(mail_conf)
         await fm.send_message(
             message,
-            template_name="templates/register_email.html"
+            template_name="register_email.html"
         )
 
         return user

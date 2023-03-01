@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi_mail import ConnectionConfig
@@ -17,5 +18,6 @@ mail_conf = ConnectionConfig(
     MAIL_STARTTLS = True,
     MAIL_SSL_TLS = False,
     USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True
+    VALIDATE_CERTS = True,
+    TEMPLATE_FOLDER = Path(__file__).parent / "templates"
 )
