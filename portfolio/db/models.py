@@ -1,3 +1,4 @@
+from collections import namedtuple
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.schema import UniqueConstraint 
@@ -18,6 +19,58 @@ class User(Base):
 
     sessions = relationship("Session", back_populates="user")
     email_token = relationship("EmailToken", uselist=False, back_populates="user")
+
+
+class UserInfo(Base):
+
+    __tablename__ = "user_info"
+
+    info_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"))
+    first_name = Column(String)
+    last_name = Column(String)
+    description = Column(String)
+    
+    skills = relationship("SkillUserM2M", back_populates="skill_user_m2m.user")
+    links = relationship("Link", back_populates="link.user")
+
+
+class Skill(Base):
+
+    __tablename__ = "skill"
+
+    __table_args__ = (
+        UniqueConstraint("skill_name", name="uix_2"),
+    )
+
+    skill_id = Column(Integer, primary_key=True)
+    skill_name = Column(String)
+
+    users = relationship("SkillUserM2M", back_populates="skill_user_m2m.skill")
+
+
+class SkillUserM2M(Base):
+
+    __tablename__ = "skill_user_m2m"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user_info.info_id"))
+    skill_id = Column(Integer, ForeignKey("skill.skill_id"))
+
+    user = relationship("UserInfo", back_populates="user_info.skills")
+    skill = relationship("Skill", back_populates="skill.users")
+
+
+class Link(Base):
+
+    __tablename__ = "link"
+
+    link_id = Column(Integer, primary_key=True)
+    resource = Column(String)
+    url = Column(String)
+    user_id = Column(Integer, ForeignKey("user_info.info_id"))
+
+    user = relationship("UserInfo", back_populates="user_info.links")
 
 
 class Session(Base):
