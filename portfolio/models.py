@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from typing import List
+
+from pydantic import BaseModel, EmailStr, HttpUrl
 
 
 class ORMModel(BaseModel):
@@ -30,3 +32,21 @@ class NewOutputUser(ORMModel):
 class OutputUser(ORMModel):
     username: str
     email: EmailStr
+
+
+class LinkInfo(ORMModel):
+    resource: str
+    url: HttpUrl
+
+
+class SkillInfo(ORMModel):
+    skill_name: str
+
+
+class FullUserData(ORMModel):
+
+    first_name: str
+    last_name: str
+    description: str
+    skills: List[SkillInfo]
+    links: List[LinkInfo]
