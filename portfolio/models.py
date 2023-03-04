@@ -39,8 +39,21 @@ class LinkInfo(ORMModel):
     url: HttpUrl
 
 
+class SkillData(BaseModel):
+    skill_name: str
+
+
 class SkillInfo(ORMModel):
     skill_name: str
+    skill_lvl: str
+
+
+class InfoData(BaseModel):
+    first_name: str
+    last_name: str
+    descrption: str
+    skill_ids: List[int]
+    links: List[LinkInfo]
 
 
 class FullUserData(ORMModel):

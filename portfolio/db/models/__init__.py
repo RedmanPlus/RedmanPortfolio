@@ -1,3 +1,4 @@
+from portfolio.db.models.base import Base
 from portfolio.db.models.user import User
 from portfolio.db.models.user_info import UserInfo
 from portfolio.db.models.skill import Skill, SkillUserM2M
