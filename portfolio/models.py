@@ -43,8 +43,18 @@ class SkillData(BaseModel):
     skill_name: str
 
 
+class BaseSkillInfo(ORMModel):
+    skill_id: int
+    skill_name: str
+
+
 class SkillInfo(ORMModel):
     skill_name: str
+    skill_lvl: str
+
+
+class NewSkillInfo(BaseModel):
+    skill_id: int
     skill_lvl: str
 
 
@@ -52,7 +62,7 @@ class InfoData(BaseModel):
     first_name: str
     last_name: str
     descrption: str
-    skill_ids: List[int]
+    skill_ids: List[NewSkillInfo]
     links: List[LinkInfo]
 
 

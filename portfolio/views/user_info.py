@@ -16,12 +16,13 @@ async def get_my_data(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> FullUserData:
     user_obj = user(request)
+    print(user_obj.is_anonymous)
     try:
         return await get_user_info(user_obj, db)
-    except Exception:
+    except Exception as err:
         raise HTTPException(
             status_code=400,
-            detail="Cannot get info on user, perhaps you're logged out"
+            detail=f"Error occupied {err}"
         )
 
 
@@ -30,10 +31,10 @@ async def add_my_data(
     request: Request, data: InfoData, db: AsyncSession = Depends(get_db)
 ) -> FullUserData:
     user_obj = user(request)
-    try:
-        return await add_user_data(user_obj, data, db)
-    except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="Cannot ad info to user, perhaps you're logged out"
-        )
+    #try:
+    return await add_user_data(user_obj, data, db)
+    #except Exception as err:
+    #    raise HTTPException(
+    #        status_code=400,
+    #        detail=f"Error occupied: {err}"
+    #    )

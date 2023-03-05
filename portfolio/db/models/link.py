@@ -13,4 +13,4 @@ class Link(Base):
     url = Column(String)
     user_id = Column(Integer, ForeignKey("user_info.info_id"))
 
-    _user = relationship("UserInfo", backref="UserInfo")
+    _user = relationship("UserInfo", backref="UserInfo", lazy="joined")

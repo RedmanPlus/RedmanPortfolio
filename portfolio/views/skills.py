@@ -8,12 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from portfolio.BL.skill_handlers import get_skills, create_skill
 from portfolio.db.session import get_db
 from portfolio.dependencies import user
-from portfolio.models import SkillInfo, SkillData
+from portfolio.models import SkillInfo, SkillData, BaseSkillInfo
 
 skills = APIRouter()
 
 
-@skills.get("/", response_model=list[SkillInfo])
+@skills.get("/", response_model=list[BaseSkillInfo])
 async def get_all_skills(
     db: AsyncSession = Depends(get_db)
 ) -> List[SkillInfo]:

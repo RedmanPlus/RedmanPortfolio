@@ -1,17 +1,23 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, ForeignKey 
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import UniqueConstraint 
 
 from portfolio.db.models.base import Base
 
 
-SkillUserM2M = Table("skill_user_m2m",
-    Base.metadata,
-    Column("id", Integer, primary_key=True),
-    Column("user_id", Integer, ForeignKey("user_info.info_id")),
-    Column("skill_id", Integer, ForeignKey("skill.skill_id")),
-    Column("skill_lvl", String(12))
-)
+class SkillUserM2M(Base):
+
+    __tablename__ = "skill_user_m2m"
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("user_info.info_id"))
+    user = relationship("UserInfo", back_populates="skills", lazy="joined")
+
+    skill_id = Column(Integer, ForeignKey("skill.skill_id"))
+    skill = relationship("Skill", back_populates="users", lazy="joined")
+
+    skill_lvl = Column(String(12))
 
 
 class Skill(Base):
@@ -25,4 +31,6 @@ class Skill(Base):
     skill_id = Column(Integer, primary_key=True)
     skill_name = Column(String)
 
-    users = relationship("UserInfo", secondary=SkillUserM2M, backref="Skill")
+    users = relationship(
+        "SkillUserM2M", back_populates="skill", lazy="joined"
+    )

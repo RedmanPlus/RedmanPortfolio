@@ -19,5 +19,7 @@ async def session(
         q = select(Session).where(Session.session_key == session_key)
 
         result = await db.scalars(q)
+
+        await db.flush()
     
     return result.first()

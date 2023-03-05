@@ -43,9 +43,11 @@ async def _login(user: User, session: Session, db: AsyncSession):
 async def login(
     user: User, session: Session, db: AsyncSession
 ):
-    if db.in_transaction:
+    if db.in_transaction():
+        print("im in transaction")
         await _login(user, session, db)
     else:
+        print("im not in transaction")
         async with db.begin():
             await _login(user, session, db)
             await db.commit()

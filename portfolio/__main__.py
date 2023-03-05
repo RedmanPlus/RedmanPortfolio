@@ -7,6 +7,8 @@ from portfolio.db.dal import SessionDAL
 from portfolio.db.session import get_session
 from portfolio.views.user import users
 from portfolio.views.auth import auth
+from portfolio.views.links import links
+from portfolio.views.skills import skills
 
 
 app = FastAPI()
@@ -31,6 +33,8 @@ async def get_user(request: Request, call_next):
 
 app.include_router(users, prefix="/user", tags=["user"])
 app.include_router(auth, prefix="/auth", tags=["auth"])
+app.include_router(links, prefix="/links", tags=["links"])
+app.include_router(skills, prefix="/skills", tags=["skills"])
 
 
 if __name__ == "__main__":

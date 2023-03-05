@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from portfolio.db.models.base import Base
-from portfolio.db.models.skill import SkillUserM2M
 
 
 class UserInfo(Base):
@@ -16,5 +15,7 @@ class UserInfo(Base):
     description = Column(String)
     
     user = relationship("User", uselist=False, back_populates="info")
-    _skills = relationship("Skill", secondary=SkillUserM2M, backref="UserInfo")
-    _links = relationship("Link", backref="Link")
+    skills = relationship(
+        "SkillUserM2M", back_populates="user", lazy="joined"
+    )
+    _links = relationship("Link", backref="Link", lazy="joined")

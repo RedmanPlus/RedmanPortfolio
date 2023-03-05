@@ -14,28 +14,31 @@ class SessionDAL:
     async def get_user_from_session(
         self, session_key: str
     ) -> User:
-        q = select(
-            Session
-        ).where(
-            Session.session_key == session_key
-        ).options(
-            selectinload(Session.user)
-        )
-        session = await self.db.scalars(q)
-        session = session.one()
-        print(session)
+        async with self.db.begin():
+            q = select(
+                Session
+            ).where(
+                Session.session_key == session_key
+            ).options(
+                selectinload(Session.user)
+            )
+            session = await self.db.scalars(q)
+            session = session.one()
+            await self.db.close()
 
         return session.user
 
     async def create_session_key(self) -> Session:
-        user = User(is_anonymous=True)
-        session = Session(
-            user=user,
-            session_key=create_session_key(),
-            uid=user.user_id,
-        )
+        async with self.db.begin():
+            user = User(is_anonymous=True)
+            session = Session(
+                user=user,
+                session_key=create_session_key(),
+                uid=user.user_id,
+            )
 
-        self.db.add_all([user, session])
-        await self.db.flush()
+            self.db.add_all([user, session])
+            await self.db.flush()
+            await self.db.close()
 
         return session
