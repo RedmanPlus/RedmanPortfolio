@@ -18,7 +18,7 @@ class SkillDAL:
 
         skills = await self.session.scalars(query)
 
-        return skills.fetchall()
+        return skills.unique().fetchall()
 
     async def create_skill(self, data: SkillData) -> Skill:
 

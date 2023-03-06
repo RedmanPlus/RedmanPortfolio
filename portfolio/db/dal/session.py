@@ -3,7 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from portfolio.BL.session_handlers import create_session_key
-from portfolio.db.models import User, Session
+from portfolio.db.models import User, Session, UserInfo, SkillUserM2M
 
 
 class SessionDAL:
@@ -15,13 +15,19 @@ class SessionDAL:
         self, session_key: str
     ) -> User:
         async with self.db.begin():
-            q = select(
-                Session
-            ).where(
-                Session.session_key == session_key
-            ).options(
-                selectinload(Session.user)
-            )
+            q = select(Session)\
+                .where(Session.session_key == session_key)\
+                .options(
+                    selectinload(Session.user)\
+                    .selectinload(User.info)\
+                    .selectinload(UserInfo.skills)\
+                    .selectinload(SkillUserM2M.skill)
+                )\
+                .options(
+                    selectinload(Session.user)\
+                    .selectinload(User.info)\
+                    .selectinload(UserInfo._links)
+                )
             session = await self.db.scalars(q)
             session = session.one()
             await self.db.close()
