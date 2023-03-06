@@ -29,7 +29,7 @@ from portfolio.models import (
 user_info = APIRouter()
 
 
-@user_info.get("/me", response_model=FullUserData)
+@user_info.get("/", response_model=FullUserData)
 async def get_my_data(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> FullUserData:
