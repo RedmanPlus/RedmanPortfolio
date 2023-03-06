@@ -66,6 +66,12 @@ class InfoData(BaseModel):
     links: List[LinkInfo]
 
 
+class UpdateUserData(BaseModel):
+    first_name: str
+    last_name: str
+    description: str
+
+
 class FullUserData(ORMModel):
 
     first_name: str

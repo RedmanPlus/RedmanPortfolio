@@ -16,7 +16,8 @@ from portfolio.models import (
     NewSkillInfo,
     SkillData,
     SkillInfo,
-    LinkInfo
+    LinkInfo,
+    UpdateUserData
 )
 
 
@@ -89,6 +90,24 @@ class UserInfoDAL:
 
         return info, skills, links
 
+    async def update_user_data(
+        self, user: User, data: UpdateUserData
+    ) -> UserInfo:
+        info = user.info
+
+        info.first_name = data.first_name \
+                if data.first_name != "string" else info.first_name
+        info.last_name = data.last_name \
+                if data.last_name != "string" else info.last_name
+        info.description = data.description \
+                if data.description != "string" else info.description
+
+        self.session.add(info)
+
+        await self.session.flush()
+
+        return info
+
     async def add_skill_to_user(
         self, user: User, data: NewSkillInfo
     ) -> Skill:
@@ -140,3 +159,49 @@ class UserInfoDAL:
                 return m2m
         
         raise Exception("No such skill on user")
+
+    async def add_link_to_user(self, user: User, data: LinkInfo) -> Link:
+
+        info = user.info
+
+        link = Link(
+            resource=data.resource,
+            url=data.url,
+            _user=info
+        )
+
+        self.session.add(link)
+
+        return link
+
+    async def modify_link_on_user(
+        self, user: User, resource: str, data: LinkInfo
+    ) -> Link:
+
+        info = user.info
+
+        for link in info._links:
+            if link.resource == resource:
+                link.resource = data.resource
+                link.url = data.url
+                self.session.add(link)
+                await self.session.flush()
+
+                return link
+
+        raise Exception("No such link on user")
+
+    async def delete_link_from_user(
+        self, user: User, resource: str
+    ) -> Link:
+
+        info = user.info
+
+        for link in info._links:
+            if link.resource == resource:
+                await self.session.delete(link)
+                await self.session.flush()
+
+                return link
+
+        raise Exception("No such link on user")
