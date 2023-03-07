@@ -21,3 +21,6 @@ mail_conf = ConnectionConfig(
     VALIDATE_CERTS = True,
     TEMPLATE_FOLDER = Path(__file__).parent / "templates"
 )
+
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")

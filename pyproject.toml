@@ -19,6 +19,7 @@ psycopg2 = "^2.9.5"
 fastapi-mail = "^1.2.5"
 python-dotenv = "^1.0.0"
 miniopy-async = "^1.12"
+python-multipart = "^0.0.6"
 
 
 [build-system]

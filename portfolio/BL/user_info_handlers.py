@@ -1,3 +1,5 @@
+from fastapi import UploadFile
+from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from portfolio.db.models import User
@@ -9,7 +11,8 @@ from portfolio.models import (
     SkillData, 
     SkillInfo,
     NewSkillInfo,
-    UpdateUserData
+    UpdateUserData,
+    UserPhoto
 )
 
 
@@ -152,3 +155,27 @@ async def delete_link_from_user(
             resource=link.resource,
             url=link.url
         )
+
+
+async def add_user_photo(
+    user: User, photo: UploadFile, minio: Minio, db: AsyncSession
+) -> UserPhoto:
+    if user.is_anonymous:
+        raise Exception("You're not logged in")
+
+    result = await minio.put_object(
+        "photos",
+        f"{user.username}_{photo.filename}",
+        photo.file,
+        length=-1,
+        part_size=10*1024*1024
+    )
+
+    result_link = f"http://127.0.0.1:9000/photo/{result._object_name}"
+
+    async with db.begin():
+        dal = UserInfoDAL(db)
+
+        await dal.add_photo_to_user(user, result_link)
+
+    return UserPhoto(photo_link=result_link)

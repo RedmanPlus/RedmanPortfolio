@@ -13,9 +13,11 @@ class UserInfo(Base):
     first_name = Column(String)
     last_name = Column(String)
     description = Column(String)
+    photo_link = Column(String, nullable=True)
     
     user = relationship("User", uselist=False, back_populates="info")
     skills = relationship(
         "SkillUserM2M", back_populates="user", lazy="joined"
     )
     _links = relationship("Link", backref="Link", lazy="joined")
+    projects = relationship("Project", back_populates="author")

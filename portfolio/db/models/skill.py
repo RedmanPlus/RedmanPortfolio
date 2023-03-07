@@ -20,6 +20,21 @@ class SkillUserM2M(Base):
     skill_lvl = Column(String(12))
 
 
+class SkillBlockM2M(Base):
+
+    __tablename__ = "skill_block_m2m"
+
+    id = Column(Integer, primary_key=True)
+
+    block_id = Column(Integer, ForeignKey("project_block.block_id"))
+    block = relationship(
+        "ProjectBlock", back_populates="skills", lazy="joined"
+    )
+
+    skill_id = Column(Integer, ForeignKey("skill.skill_id"))
+    skill = relationship("Skill", back_populates="blocks", lazy="joined") 
+
+
 class Skill(Base):
 
     __tablename__ = "skill"
@@ -33,4 +48,7 @@ class Skill(Base):
 
     users = relationship(
         "SkillUserM2M", back_populates="skill", lazy="joined"
+    )
+    blocks = relationship(
+        "SkillBlockM2M", back_populates="skill", lazy="joined"
     )

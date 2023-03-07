@@ -1,6 +1,7 @@
-from fastapi import Depends, Request 
+from fastapi import Depends, Request, UploadFile 
 from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
+from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from portfolio.BL.user_info_handlers import (
@@ -12,18 +13,21 @@ from portfolio.BL.user_info_handlers import (
     delete_skill_from_user,
     add_link_to_user,
     modify_link_on_user,
-    delete_link_from_user
+    delete_link_from_user,
+    add_user_photo
 )
 from portfolio.db.models import UserInfo
 from portfolio.db.session import get_db
 from portfolio.dependencies import user
+from portfolio.minio.minio import get_minio
 from portfolio.models import (
     FullUserData,
     InfoData,
     LinkInfo,
     SkillInfo,
     NewSkillInfo,
-    UpdateUserData
+    UpdateUserData,
+    UserPhoto
 )
 
 user_info = APIRouter()
@@ -166,6 +170,23 @@ async def delete_link(
     user_obj = user(request)
     try:
         return await delete_link_from_user(user_obj, resource, db)
+    except Exception as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error occupied: {err}"
+        )
+
+
+@user_info.post("/photo/", response_model=UserPhoto)
+async def add_my_photo(
+    request: Request,
+    photo: UploadFile,
+    minio: Minio = Depends(get_minio),
+    db: AsyncSession = Depends(get_db)
+) -> UserPhoto:
+    user_obj = user(request)
+    try:
+        return await add_user_photo(user_obj, photo, minio, db)
     except Exception as err:
         raise HTTPException(
             status_code=400,

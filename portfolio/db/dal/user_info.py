@@ -46,6 +46,7 @@ class UserInfoDAL:
             first_name=info.first_name,
             last_name=info.last_name,
             description=info.description,
+            photo_link=info.photo_link,
             skills=skills,
             links=links
         )
@@ -205,3 +206,11 @@ class UserInfoDAL:
                 return link
 
         raise Exception("No such link on user")
+
+    async def add_photo_to_user(self, user: User, photo_link: str):
+
+        info = user.info
+        info.photo_link = photo_link
+
+        self.session.add(info)
+        await self.session.flush()

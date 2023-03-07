@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, HttpUrl
 
@@ -77,5 +77,35 @@ class FullUserData(ORMModel):
     first_name: str
     last_name: str
     description: str
+    photo_link: Optional[str] = None
     skills: List[SkillInfo]
     links: List[LinkInfo]
+
+
+class UserPhoto(BaseModel):
+
+    photo_link: str
+
+
+class BlockInfo(ORMModel):
+
+    block_name: str
+    block_description: str
+    skills: List[SkillData]
+    block_author: InfoData
+
+
+class ProjectInfo(ORMModel):
+
+    project_name: str
+    short_description: Optional[str] = None
+    project_logo: Optional[str] = None
+    full_description: Optional[str] = None
+    is_public: bool
+    blocks: Optional[List[BlockInfo]] = None
+    author: InfoData
+
+
+class ProjectData(BaseModel):
+
+    project_name: str
