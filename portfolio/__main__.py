@@ -9,6 +9,7 @@ from portfolio.views.user import users
 from portfolio.views.auth import auth
 from portfolio.views.links import links
 from portfolio.views.skills import skills
+from portfolio.views.projects import projects
 
 
 app = FastAPI()
@@ -35,6 +36,7 @@ app.include_router(users, prefix="/user", tags=["user"])
 app.include_router(auth, prefix="/auth", tags=["auth"])
 app.include_router(links, prefix="/links", tags=["links"])
 app.include_router(skills, prefix="/skills", tags=["skills"])
+app.include_router(projects, prefix="/projects", tags=["projects"])
 
 
 if __name__ == "__main__":

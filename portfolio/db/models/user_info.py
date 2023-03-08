@@ -21,3 +21,6 @@ class UserInfo(Base):
     )
     _links = relationship("Link", backref="Link", lazy="joined")
     projects = relationship("Project", back_populates="author")
+    project_blocks = relationship(
+        "ProjectBlock", back_populates="block_author"
+    )

@@ -82,6 +82,13 @@ class FullUserData(ORMModel):
     links: List[LinkInfo]
 
 
+class ShortUserData(ORMModel):
+
+    first_name: str
+    last_name: str
+    photo_link: Optional[str] = None
+
+
 class UserPhoto(BaseModel):
 
     photo_link: str
@@ -103,7 +110,7 @@ class ProjectInfo(ORMModel):
     full_description: Optional[str] = None
     is_public: bool
     blocks: Optional[List[BlockInfo]] = None
-    author: InfoData
+    author: ShortUserData
 
 
 class ProjectData(BaseModel):

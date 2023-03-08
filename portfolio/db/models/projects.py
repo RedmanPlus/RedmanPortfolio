@@ -39,6 +39,14 @@ class ProjectBlock(Base):
     project_id = Column(Integer, ForeignKey("project.project_id"))
     project = relationship("Project", back_populates="blocks")
 
+    blocks = relationship(
+        "BlockBlockM2M",
+        secondary="block_block_m2m",
+        primaryjoin="ProjectBlock.block_id == BlockBlockM2M.left_block_id",
+        secondaryjoin="ProjectBlock.block_id == BlockBlockM2M.right_block_id",
+        backref="block"
+    )
+
 
 class BlockBlockM2M(Base):
 
@@ -47,7 +55,15 @@ class BlockBlockM2M(Base):
     id = Column(Integer, primary_key=True)
     
     left_block_id = Column(Integer, ForeignKey("project_block.block_id"))
-    left_block = relationship("ProjectBlock", backref="blocks")
+    left_block = relationship(
+        "ProjectBlock",
+        primaryjoin="BlockBlockM2M.left_block_id == ProjectBlock.block_id",
+        backref="left_blocks"
+    )
 
     right_block_id = Column(Integer, ForeignKey("project_block.block_id"))
-    rigth_block = relationship("ProjectBlock", backref="blocks")
+    right_block = relationship(
+        "ProjectBlock",
+        primaryjoin="BlockBlockM2M.right_block_id == ProjectBlock.block_id",
+        backref="right_blocks"
+    )
