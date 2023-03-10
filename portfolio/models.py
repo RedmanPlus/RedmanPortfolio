@@ -97,9 +97,14 @@ class UserPhoto(BaseModel):
 class BlockInfo(ORMModel):
 
     block_name: str
-    block_description: str
-    skills: List[SkillData]
-    block_author: InfoData
+    block_description: Optional[str] = None
+    skills: Optional[List[SkillData]] = None
+    block_author: Optional[ShortUserData] = None
+
+
+class BlockIDData(BaseModel):
+
+    block_name: str
 
 
 class ProjectInfo(ORMModel):
@@ -116,3 +121,12 @@ class ProjectInfo(ORMModel):
 class ProjectData(BaseModel):
 
     project_name: str
+
+
+class UpdateProjectData(BaseModel):
+
+    project_name: Optional[str] = None
+    short_description: Optional[str] = None
+    project_logo: Optional[str] = None
+    full_description: Optional[str] = None
+    blocks: Optional[List[BlockIDData]] = None
