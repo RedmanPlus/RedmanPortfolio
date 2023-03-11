@@ -39,8 +39,8 @@ class LinkInfo(ORMModel):
     url: HttpUrl
 
 
-class SkillData(BaseModel):
-    skill_name: str
+class SkillData(ORMModel):
+    skill_name: Optional[str] = None
 
 
 class BaseSkillInfo(ORMModel):
@@ -102,6 +102,18 @@ class BlockInfo(ORMModel):
     block_author: Optional[ShortUserData] = None
 
 
+class LinkBlock(BaseModel):
+
+    block_1_name: str
+    block_2_name: str
+
+
+class BlockM2M(ORMModel):
+
+    left_block: BlockInfo
+    right_block: BlockInfo
+
+
 class BlockIDData(BaseModel):
 
     block_name: str
@@ -121,6 +133,11 @@ class ProjectInfo(ORMModel):
 class ProjectData(BaseModel):
 
     project_name: str
+
+
+class PublichProjectData(BaseModel):
+
+    is_public: bool
 
 
 class UpdateProjectData(BaseModel):
