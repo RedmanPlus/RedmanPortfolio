@@ -11,8 +11,8 @@ class InfoData(BaseModel):
     first_name: str
     last_name: str
     descrption: str
-    skill_ids: List[NewSkillInfo]
-    links: List[LinkInfo]
+    skill_ids: Optional[List[NewSkillInfo]] = None
+    links: Optional[List[LinkInfo]] = None
 
 
 class UpdateUserData(BaseModel):
@@ -27,8 +27,8 @@ class FullUserData(ORMModel):
     last_name: str
     description: str
     photo_link: Optional[str] = None
-    skills: List[SkillInfo]
-    links: List[LinkInfo]
+    skills: Optional[List[SkillInfo]] = None
+    links: Optional[List[LinkInfo]] = None
 
 
 class ShortUserData(ORMModel):

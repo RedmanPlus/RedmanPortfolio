@@ -21,6 +21,28 @@ class Project(Base):
     author = relationship("UserInfo", back_populates="projects")
 
 
+class BlockBlockM2M(Base):
+    __tablename__ = "block_block_m2m"
+
+    left_id = Column(
+        Integer, ForeignKey("project_block.block_id"), primary_key=True
+    )
+    right_id = Column(
+        Integer, ForeignKey("project_block.block_id"), primary_key=True
+    )
+
+    left = relationship(
+        "ProjectBlock",
+        primaryjoin=lambda: BlockBlockM2M.left_id == ProjectBlock.block_id,
+        backref="left_references"
+    )
+    right = relationship(
+        "ProjectBlock",
+        primaryjoin=lambda: BlockBlockM2M.right_id == ProjectBlock.block_id,
+        backref="right_references"
+    )
+
+
 class ProjectBlock(Base):
     
     __tablename__ = "project_block"
@@ -40,30 +62,9 @@ class ProjectBlock(Base):
     project = relationship("Project", back_populates="blocks")
 
     blocks = relationship(
-        "BlockBlockM2M",
+        BlockBlockM2M,
         secondary="block_block_m2m",
-        primaryjoin="ProjectBlock.block_id == BlockBlockM2M.left_block_id",
-        secondaryjoin="ProjectBlock.block_id == BlockBlockM2M.right_block_id",
+        primaryjoin=lambda: ProjectBlock.block_id == BlockBlockM2M.left_id,
+        secondaryjoin=lambda: ProjectBlock.block_id == BlockBlockM2M.right_id,
         backref="block"
-    )
-
-
-class BlockBlockM2M(Base):
-
-    __tablename__ = "block_block_m2m"
-
-    id = Column(Integer, primary_key=True)
-    
-    left_block_id = Column(Integer, ForeignKey("project_block.block_id"))
-    left_block = relationship(
-        "ProjectBlock",
-        primaryjoin="BlockBlockM2M.left_block_id == ProjectBlock.block_id",
-        backref="left_blocks"
-    )
-
-    right_block_id = Column(Integer, ForeignKey("project_block.block_id"))
-    right_block = relationship(
-        "ProjectBlock",
-        primaryjoin="BlockBlockM2M.right_block_id == ProjectBlock.block_id",
-        backref="right_blocks"
     )

@@ -21,8 +21,10 @@ async def get_user(request: Request, call_next):
     cookies = request.cookies
     
     if session_key := cookies.get("User-Session", False):
+        print("I found cookies")
         user = await dal.get_user_from_session(session_key=session_key)
     else:
+        print("I haven't found cookies")
         session = await dal.create_session_key()
         user = session.user
         session_key=session.session_key

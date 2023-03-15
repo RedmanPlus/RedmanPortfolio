@@ -16,10 +16,10 @@ class BlockRelationsDAL:
     ) -> Sequence[BlockBlockM2M]:
         query = select(BlockBlockM2M) \
             .where(
-                BlockBlockM2M.left_block.project_id == project.project_id 
-                or BlockBlockM2M.right_block.project_id == project.project_id
+                BlockBlockM2M.left.project_id == project.project_id 
+                or BlockBlockM2M.right.project_id == project.project_id
             )
 
         relations = await self.session.scalars(query)
-
+        print(relations)
         return relations.all()
