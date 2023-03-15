@@ -1,9 +1,20 @@
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from portfolio.db.dal import ProjectDAL
+from portfolio.db.dal import ProjectDAL, BlockRelationsDAL
+from portfolio.db.models.projects import ProjectBlock
 from portfolio.db.models.user import User
-from portfolio.models import BlockInfo, BlockM2M, LinkBlock, ProjectData, ProjectInfo, PublichProjectData, ShortUserData, UpdateProjectData
+from portfolio.models import (
+    BlockInfo,
+    BlockM2M,
+    LinkBlock,
+    ProjectData,
+    ProjectInfo,
+    PublichProjectData,
+    ShortUserData,
+    UpdateProjectData
+)
+from portfolio.models.project import EdgeId
 
 
 async def get_projects(user: User, db: AsyncSession) -> List[ProjectInfo]:
@@ -246,3 +257,25 @@ async def delete_project_block_by_name(
             )
 
         return BlockInfo.from_orm(block)
+
+
+async def get_project_block_tree_by_id(
+    user: User,
+    username: str,
+    project_id: int,
+    db: AsyncSession
+) -> List[EdgeId]:
+    async with db.begin():
+        proj_dal = ProjectDAL(db)
+        rel_dal = BlockRelationsDAL(db)
+
+        project = await proj_dal.get_user_project_by_id(
+            user, username, project_id
+        )
+
+        if project is None:
+            raise Exception("You cannot access blocks on this project")
+
+        relations = await rel_dal.get_project_relations(project)
+
+        return [EdgeId.from_orm(obj) for obj in relations]

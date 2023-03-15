@@ -17,7 +17,8 @@ from portfolio.BL.project_handlers import (
     link_blocks_in_project,
     get_project_block_by_name,
     update_project_block_by_name,
-    delete_project_block_by_name
+    delete_project_block_by_name,
+    get_project_block_tree_by_id,
 )
 from portfolio.db.session import get_db
 from portfolio.dependencies import user
@@ -28,7 +29,8 @@ from portfolio.models import (
     ProjectInfo,
     ProjectData,
     PublichProjectData,
-    UpdateProjectData
+    UpdateProjectData,
+    EdgeId
 )
 
 projects = APIRouter()
@@ -290,6 +292,25 @@ async def delete_block_by_name(
     try:
         return await delete_project_block_by_name(
             user_obj, username, project_id, block_name, db
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error occupied: {err}"
+        )
+
+
+@projects.get("/{username}/{project_id}/block_tree/", response_model=list[EdgeId])
+async def get_project_block_tree(
+    request: Request,
+    username: str,
+    project_id: int,
+    db: AsyncSession = Depends(get_db)
+) -> List[EdgeId]:
+    user_obj = user(request)
+    try:
+        return await get_project_block_tree_by_id(
+            user_obj, username, project_id, db
         )
     except Exception as err:
         raise HTTPException(

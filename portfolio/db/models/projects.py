@@ -22,7 +22,7 @@ class Project(Base):
 
 
 class ProjectBlock(Base):
-
+    
     __tablename__ = "project_block"
 
     block_id = Column(Integer, primary_key=True)

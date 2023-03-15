@@ -1,13 +1,20 @@
 from typing import Sequence
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
 from portfolio.db.models.projects import BlockBlockM2M, Project, ProjectBlock
 from portfolio.db.models.skill import Skill, SkillBlockM2M
-
 from portfolio.db.models.user import User
 from portfolio.db.models.user_info import UserInfo
-from portfolio.models import BlockInfo, BlockM2M, LinkBlock, ProjectData, PublichProjectData, UpdateProjectData
+from portfolio.models import (
+    BlockInfo,
+    LinkBlock,
+    ProjectData,
+    PublichProjectData,
+    UpdateProjectData
+)
 
 
 class ProjectDAL:
@@ -21,7 +28,10 @@ class ProjectDAL:
         query = select(Project)\
             .where(Project.project_id == project_id)\
             .options(selectinload(Project.author))\
-            .options(selectinload(Project.blocks))
+            .options(
+                selectinload(Project.blocks)\
+                .selectinload(ProjectBlock.blocks)
+            )
 
         return await self.session.scalar(query)
 
