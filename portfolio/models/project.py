@@ -9,7 +9,7 @@ from portfolio.models.user_info import ShortUserData
 
 class BlockInfo(ORMModel):
 
-    block_name: str
+    block_name: Optional[str] = None
     block_description: Optional[str] = None
     skills: Optional[List[SkillID]] = None
     block_author: Optional[ShortUserData] = None
@@ -23,8 +23,8 @@ class LinkBlock(BaseModel):
 
 class BlockM2M(ORMModel):
 
-    left_block: BlockInfo
-    right_block: BlockInfo
+    left: BlockInfo
+    right: BlockInfo
 
 
 class BlockIDData(BaseModel):
@@ -64,4 +64,5 @@ class UpdateProjectData(BaseModel):
 
 class EdgeId(ORMModel):
 
-    id: int
+    left_name: str
+    right_name: str

@@ -278,4 +278,9 @@ async def get_project_block_tree_by_id(
 
         relations = await rel_dal.get_project_relations(project)
 
-        return [EdgeId.from_orm(obj) for obj in relations]
+        return [
+            EdgeId(
+                left_name=obj.left.block_name,
+                right_name=obj.right.block_name
+            ) for obj in relations
+        ]

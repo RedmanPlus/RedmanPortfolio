@@ -28,10 +28,7 @@ class ProjectDAL:
         query = select(Project)\
             .where(Project.project_id == project_id)\
             .options(selectinload(Project.author))\
-            .options(
-                selectinload(Project.blocks)\
-                .selectinload(ProjectBlock.blocks)
-            )
+            .options(selectinload(Project.blocks))
 
         return await self.session.scalar(query)
 
@@ -225,21 +222,28 @@ class ProjectDAL:
 
         block = ProjectBlock(block_name=data.block_name, project=project)
 
-        block.block_author = data.block_author \
-            if data.block_author is not None else None
+        block_author = select(UserInfo) \
+            .where(
+                UserInfo.first_name == data.block_author.first_name
+                and UserInfo.last_name == data.block_author.last_name
+            )
+
+        author = await self.session.scalar(block_author)
+
+        block.block_author = author
         block.block_description = data.block_description \
             if data.block_description is not None else None
         
         if data.skills is not None:
             for obj in data.skills:
                 query = select(Skill) \
-                    .where(Skill.skill_name == obj.skill_name)
+                    .where(Skill.skill_id == obj.skill_id)
 
                 skill = await self.session.scalar(query)
 
                 if skill is None:
                     raise Exception(
-                        f"Skill by name {obj.skill_name} doesn't exist"
+                        f"Skill by id {obj.skill_id} doesn't exist"
                     )
 
                 m2m = SkillBlockM2M(skill=skill, block=block)
@@ -280,8 +284,8 @@ class ProjectDAL:
             return None
 
         m2m = BlockBlockM2M(
-            left_block=linked_blocks[0],
-            right_block=linked_blocks[1]
+            left=linked_blocks[0],
+            right=linked_blocks[1]
         )
 
         self.session.add(m2m)
@@ -334,9 +338,18 @@ class ProjectDAL:
                 block.block_description = data.block_description \
                     if data.block_description is not None \
                     else block.block_description
-                block.skills = data.skills \
-                    if data.skills is not None \
-                    else block.skills
+                if data.skills is not None:
+                    skills = select(Skill) \
+                        .where(
+                            Skill.skill_id.in_(
+                                [obj.skill_id for obj in data.skills]
+                            )
+                        )
+                    skills = await self.session.scalars(skills)
+                    skills = skills.unique().all()
+                    for skill in skills:
+                        m2m = SkillBlockM2M(skill=skill, block=block)
+                        self.session.add(m2m)
                 if data.block_author is not None:
                     author_query = select(UserInfo) \
                     .where(

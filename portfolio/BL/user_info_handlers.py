@@ -17,6 +17,10 @@ from portfolio.models import (
 
 
 async def get_user_info(user: User, db: AsyncSession) -> FullUserData:
+    if user.is_anonymous:
+        raise Exception(
+            "You cannot see your profile cause you're not logged in"
+        )
     async with db.begin():
         dal = UserInfoDAL(db)
         return await dal.get_user_info(user)

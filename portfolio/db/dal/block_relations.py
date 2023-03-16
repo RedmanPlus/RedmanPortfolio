@@ -1,7 +1,7 @@
 from typing import Sequence
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from portfolio.db.models.projects import BlockBlockM2M, Project
 
@@ -16,9 +16,15 @@ class BlockRelationsDAL:
     ) -> Sequence[BlockBlockM2M]:
         query = select(BlockBlockM2M) \
             .where(
-                BlockBlockM2M.left.project_id == project.project_id 
-                or BlockBlockM2M.right.project_id == project.project_id
-            )
+                BlockBlockM2M.left_id.in_(
+                    [block.block_id for block in project.blocks]
+                ) 
+                | BlockBlockM2M.right_id.in_(
+                    [block.block_id for block in project.blocks]
+                )
+            ) \
+            .options(selectinload(BlockBlockM2M.left)) \
+            .options(selectinload(BlockBlockM2M.right))
 
         relations = await self.session.scalars(query)
         print(relations)
