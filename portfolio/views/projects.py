@@ -1,7 +1,8 @@
 from typing import List
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, UploadFile
 from fastapi.routing import APIRouter
+from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from portfolio.BL.project_handlers import (
@@ -19,8 +20,10 @@ from portfolio.BL.project_handlers import (
     update_project_block_by_name,
     delete_project_block_by_name,
     get_project_block_tree_by_id,
+    add_photo_to_project
 )
 from portfolio.db.session import get_db
+from portfolio.minio.minio import get_minio
 from portfolio.dependencies import user
 from portfolio.models import (
     BlockInfo,
@@ -30,7 +33,8 @@ from portfolio.models import (
     ProjectData,
     PublichProjectData,
     UpdateProjectData,
-    EdgeId
+    EdgeId,
+    ProjectPhoto
 )
 
 projects = APIRouter()
@@ -311,6 +315,27 @@ async def get_project_block_tree(
     try:
         return await get_project_block_tree_by_id(
             user_obj, username, project_id, db
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error occupied: {err}"
+        )
+
+
+@projects.post("/{username}/{project_id}/logo/", response_model=ProjectPhoto)
+async def add_project_logo(
+    request: Request,
+    username: str,
+    project_id: int,
+    photo: UploadFile,
+    db: AsyncSession = Depends(get_db),
+    minio: Minio = Depends(get_minio)
+) -> ProjectPhoto:
+    user_obj = user(request)
+    try:
+        return await add_photo_to_project(
+            user_obj, username, project_id, photo, db, minio
         )
     except Exception as err:
         raise HTTPException(

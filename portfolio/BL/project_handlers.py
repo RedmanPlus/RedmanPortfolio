@@ -1,8 +1,9 @@
 from typing import List
+from fastapi import UploadFile
+from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from portfolio.db.dal import ProjectDAL, BlockRelationsDAL
-from portfolio.db.models.projects import ProjectBlock
 from portfolio.db.models.user import User
 from portfolio.models import (
     BlockInfo,
@@ -12,7 +13,8 @@ from portfolio.models import (
     ProjectInfo,
     PublichProjectData,
     ShortUserData,
-    UpdateProjectData
+    UpdateProjectData,
+    ProjectPhoto
 )
 from portfolio.models.project import EdgeId
 
@@ -284,3 +286,37 @@ async def get_project_block_tree_by_id(
                 right_name=obj.right.block_name
             ) for obj in relations
         ]
+
+
+async def add_photo_to_project(
+    user: User,
+    username: str,
+    project_id: int,
+    photo: UploadFile,
+    db: AsyncSession,
+    minio: Minio
+) -> ProjectPhoto:
+    if user.is_anonymous:
+        raise Exception("you're not logged in")
+
+    if user.username != username:
+        raise Exception("you have no rights to modify this project")
+
+    result = await minio.put_object(
+        "photos",
+        f"{username}_{project_id}_{photo.filename}",
+        photo.file,
+        length=-1,
+        part_size=10*1024*1024
+    )
+    
+    result_link = f"http://127.0.0.1:9000/photo/{result._object_name}"
+
+    async with db.begin():
+        dal = ProjectDAL(db)
+
+        await dal.add_photo_to_project(
+            project_id, result_link
+        )
+
+    return ProjectPhoto(photo_link=result_link)

@@ -66,3 +66,8 @@ class EdgeId(ORMModel):
 
     left_name: str
     right_name: str
+
+
+class ProjectPhoto(BaseModel):
+
+    photo_link: str

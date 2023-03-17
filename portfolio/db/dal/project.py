@@ -388,3 +388,16 @@ class ProjectDAL:
                 await self.session.flush()
 
                 return block
+
+    async def add_photo_to_project(
+        self, project_id: int, project_link: str
+    ):
+        project = await self._get_project_by_id(project_id)
+
+        if project is None:
+            raise Exception("Object by this ID doesn't exist")
+
+        project.project_logo = project_link
+
+        self.session.add(project)
+        await self.session.flush()

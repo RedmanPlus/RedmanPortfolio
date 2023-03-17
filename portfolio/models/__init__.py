@@ -32,4 +32,5 @@ from portfolio.models.project import (
     LinkBlock,
     BlockM2M,
     EdgeId,
+    ProjectPhoto,
 )
