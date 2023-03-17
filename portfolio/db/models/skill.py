@@ -35,6 +35,19 @@ class SkillBlockM2M(Base):
     skill = relationship("Skill", back_populates="blocks", lazy="joined") 
 
 
+class SkillWorkplaceM2M(Base):
+
+    __tablename__ = "skill_workplace_m2m"
+
+    id = Column(Integer, primary_key=True)
+
+    workplace_id = Column(Integer, ForeignKey("workplace.workplace_id"))
+    workplace = relationship("Workplace", back_populates="skills")
+
+    skill_id = Column(Integer, ForeignKey("skill.skill_id"))
+    skill = relationship("Skill", back_populates="workplaces")
+
+
 class Skill(Base):
 
     __tablename__ = "skill"
@@ -52,3 +65,4 @@ class Skill(Base):
     blocks = relationship(
         "SkillBlockM2M", back_populates="skill", lazy="joined"
     )
+    workplaces = relationship("SkillWorkplaceM2M", back_populates="skill")

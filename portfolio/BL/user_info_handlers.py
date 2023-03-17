@@ -77,6 +77,35 @@ async def update_user_data(
         )
 
 
+async def get_user_info_by_username(
+    username: str, db: AsyncSession
+) -> FullUserData:
+    async with db.begin():
+        dal = UserInfoDAL(db)
+
+        user_info = await dal.get_user_info_by_username(username)
+
+        if user_info is None:
+            raise Exception(f"user by username {username} does not exist")
+        
+        links = [LinkInfo.from_orm(obj) for obj in user_info._links]
+        skills = [
+            SkillInfo(
+                skill_name=obj.skill.skill_name,
+                skill_lvl=obj.skill_lvl
+            )
+            for obj in user_info.skills
+        ]
+
+        return FullUserData(
+            first_name=user_info.first_name,
+            last_name=user_info.last_name,
+            description=user_info.description,
+            links=links,
+            skills=skills
+        )
+
+
 async def add_skill_to_user(
     user: User, data: NewSkillInfo, db: AsyncSession
 ) -> SkillInfo:

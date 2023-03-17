@@ -13,7 +13,6 @@ from portfolio.BL.user_handlers import (
 from portfolio.db.session import get_db
 from portfolio.dependencies import user
 from portfolio.models import InputUser, OutputUser, NewOutputUser, UserData
-from portfolio.views.user_info import user_info
 
 users = APIRouter()
 
@@ -73,6 +72,3 @@ async def fill_out_user_data(
         return await update_user(user_id, body, db)
     except IntegrityError as err:
         raise HTTPException(status_code=503, detail=f"Database Error: {err}")
-
-
-users.include_router(user_info, prefix="/info", tags=["user_info"])

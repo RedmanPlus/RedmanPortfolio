@@ -6,6 +6,7 @@ from fastapi.requests import Request
 from portfolio.db.dal import SessionDAL
 from portfolio.db.session import get_session
 from portfolio.views.user import users
+from portfolio.views.user_info import user_info
 from portfolio.views.auth import auth
 from portfolio.views.links import links
 from portfolio.views.skills import skills
@@ -35,6 +36,7 @@ async def get_user(request: Request, call_next):
     return responce
 
 app.include_router(users, prefix="/user", tags=["user"])
+app.include_router(user_info, prefix="/user_info", tags=["user_info"])
 app.include_router(auth, prefix="/auth", tags=["auth"])
 app.include_router(links, prefix="/links", tags=["links"])
 app.include_router(skills, prefix="/skills", tags=["skills"])

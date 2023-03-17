@@ -14,7 +14,8 @@ from portfolio.BL.user_info_handlers import (
     add_link_to_user,
     modify_link_on_user,
     delete_link_from_user,
-    add_user_photo
+    add_user_photo,
+    get_user_info_by_username
 )
 from portfolio.db.models import UserInfo
 from portfolio.db.session import get_db
@@ -76,6 +77,19 @@ async def update_my_data(
     user_obj = user(request)
     try:
         return await update_user_data(user_obj, data, db)
+    except Exception as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error occupied: {err}"
+        )
+
+
+@user_info.get("/{username}/", response_model=FullUserData)
+async def get_user_data(
+    username: str, db: AsyncSession = Depends(get_db)
+) -> FullUserData:
+    try:
+        return await get_user_info_by_username(username, db)
     except Exception as err:
         raise HTTPException(
             status_code=400,

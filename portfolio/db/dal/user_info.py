@@ -2,6 +2,7 @@ from typing import Tuple
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from portfolio.db.models import (
     User,
@@ -108,6 +109,16 @@ class UserInfoDAL:
         await self.session.flush()
 
         return info
+
+    async def get_user_info_by_username(self, username: str) -> UserInfo:
+        query = select(UserInfo) \
+                    .where(UserInfo.user.username == username) \
+                    .options(selectinload(UserInfo._links)) \
+                    .options(selectinload(UserInfo.skills))
+
+        user_info = await self.session.scalar(query)
+
+        return user_info
 
     async def add_skill_to_user(
         self, user: User, data: NewSkillInfo

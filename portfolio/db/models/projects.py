@@ -20,6 +20,11 @@ class Project(Base):
     author_id = Column(Integer, ForeignKey("user_info.info_id"))
     author = relationship("UserInfo", back_populates="projects")
 
+    workplace_id = Column(
+        Integer, ForeignKey("workplace.workplace_id"), nullable=True
+    )
+    workplace = relationship("Workplace", back_populates="projects")
+
 
 class BlockBlockM2M(Base):
     __tablename__ = "block_block_m2m"
