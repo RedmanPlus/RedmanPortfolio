@@ -43,6 +43,14 @@ class ProjectInfo(ORMModel):
     author: ShortUserData
 
 
+class ShortProjectInfo(ORMModel):
+
+    project_name: str
+    short_description: Optional[str] = None
+    project_logo: Optional[str] = None
+    is_public: bool
+
+
 class ProjectData(BaseModel):
 
     project_name: str

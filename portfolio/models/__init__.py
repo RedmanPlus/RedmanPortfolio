@@ -34,3 +34,4 @@ from portfolio.models.project import (
     EdgeId,
     ProjectPhoto,
 )
+from portfolio.models.workplace import NewWorkplace, WorkplaceInfo

@@ -24,3 +24,4 @@ class UserInfo(Base):
     project_blocks = relationship(
         "ProjectBlock", back_populates="block_author"
     )
+    workplaces = relationship("Workplace", back_populates="worker")
