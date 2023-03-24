@@ -1,12 +1,14 @@
-from typing import Sequence
+from typing import List, Sequence
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
+from portfolio.db.models.skill import Skill, SkillWorkplaceM2M
 
 from portfolio.db.models.user import User
 from portfolio.db.models.user_info import UserInfo
 from portfolio.db.models.workplace import Workplace
+from portfolio.models.skill import SkillID
 from portfolio.models.workplace import NewWorkplace, UpdateWorkplace, WorkplaceInfo
 
 
@@ -222,3 +224,85 @@ class WorkplaceDAL:
         await self.session.flush()
 
         return workplace
+
+    async def add_skills_to_workplace(
+        self, user: User, workplace_name: str, data: List[SkillID]
+    ) -> Workplace:
+
+        if user.is_anonymous:
+            raise Exception("You are not logged in")
+
+        workplace_query = select(Workplace) \
+            .where(Workplace.workplace_name == workplace_name) \
+            .options(selectinload(Workplace.skills)) \
+            .options(selectinload(Workplace.worker))
+
+        workplace = await self.session.scalar(workplace_query)
+
+        if workplace is None:
+            raise Exception(
+                f"Workplace by name {workplace_name} does not exist"
+            )
+
+        if workplace.worker.info_id != user.info.info_id:
+            raise Exception(
+                "You cannot modify this workplace"    
+            )
+    
+        skills_query = select(Skill) \
+            .where(Skill.skill_id.in_([obj.skill_id for obj in data]))
+
+        skills = await self.session.scalars(skills_query)
+        skills = skills.unique().all()
+
+        skill_m2ms = [
+            SkillWorkplaceM2M(skill=obj, workplace=workplace)
+            for obj in skills
+        ]
+
+        self.session.add_all(skill_m2ms)
+
+        await self.session.flush()
+
+        result = await self.get_workplace_by_name(workplace_name)
+
+        return result
+    
+
+    async def delete_skills_from_workplace(
+        self, user: User, workplace_name: str, data: List[SkillID]
+    ) -> Workplace:
+
+        if user.is_anonymous:
+            raise Exception("You are not logged in")
+
+        workplace_query = select(Workplace) \
+            .where(Workplace.workplace_name == workplace_name) \
+            .options(selectinload(Workplace.skills)) \
+            .options(selectinload(Workplace.worker))
+
+        workplace = await self.session.scalar(workplace_query)
+
+        if workplace is None:
+            raise Exception(
+                f"Workplace by name {workplace_name} does not exist"
+            )
+
+        if workplace.worker.info_id != user.info.info_id:
+            raise Exception(
+                "You cannot modify this workplace"    
+            )
+   
+        skill_m2ms_query = delete(SkillWorkplaceM2M) \
+            .where(
+                SkillWorkplaceM2M.skill_id.in_(
+                    [obj.skill_id for obj in data]
+                )
+                & (SkillWorkplaceM2M.workplace_id == workplace.workplace_id)
+            )
+
+        await self.session.execute(skill_m2ms_query)
+
+        result = await self.get_workplace_by_name(workplace_name)
+
+        return result

@@ -3,7 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from portfolio.db.dal.workplace import WorkplaceDAL
 from portfolio.db.models.user import User
-from portfolio.models.workplace import NewWorkplace, UpdateWorkplace, WorkplaceInfo
+from portfolio.models.skill import SkillID
+from portfolio.models.workplace import (
+    NewWorkplace,
+    UpdateWorkplace,
+    WorkplaceInfo
+)
 
 
 async def get_user_workplace(
@@ -88,5 +93,31 @@ async def delete_workplace_by_name(
         dal = WorkplaceDAL(db)
 
         result = await dal.delete_workplace_by_name(user, workplace_name)
+
+        return WorkplaceInfo.from_orm(result)
+
+
+async def add_skills_to_workplace(
+    user: User, workplace_name: str, data: List[SkillID], db: AsyncSession
+) -> WorkplaceInfo:
+    async with db.begin():
+
+        dal = WorkplaceDAL(db)
+
+        result = await dal.add_skills_to_workplace(user, workplace_name, data)
+
+        return WorkplaceInfo.from_orm(result)
+
+
+async def delete_skills_from_workplace(
+    user: User, workplace_name: str, data: List[SkillID], db: AsyncSession
+) -> WorkplaceInfo:
+    async with db.begin():
+
+        dal = WorkplaceDAL(db)
+
+        result = await dal.delete_skills_from_workplace(
+            user, workplace_name, data
+        )
 
         return WorkplaceInfo.from_orm(result)

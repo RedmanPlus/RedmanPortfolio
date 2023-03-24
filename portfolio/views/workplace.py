@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.exceptions import RequestErrorModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from portfolio.BL.workplace_handlers import (
@@ -9,10 +10,14 @@ from portfolio.BL.workplace_handlers import (
     get_workplace_by_username,
     get_workplace_by_name,
     update_workplace_by_name,
-    delete_workplace_by_name
+    delete_workplace_by_name,
+    add_skills_to_workplace,
+    delete_skills_from_workplace
 )
+from portfolio.db.dal.workplace import WorkplaceDAL
 from portfolio.db.session import get_db
 from portfolio.dependencies import user
+from portfolio.models.skill import SkillID
 from portfolio.models.workplace import (
     NewWorkplace,
     WorkplaceInfo,
@@ -102,6 +107,44 @@ async def delete_workplace(
     user_obj = user(request)
     try:
         return await delete_workplace_by_name(user_obj, workplace_name, db)
+    except Exception as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error occupied: {err}"
+        )
+
+
+@workplace.put("/{workplace_name}/skills", response_model=WorkplaceInfo)
+async def add_skills(
+    request: Request,
+    workplace_name: str,
+    data: List[SkillID],
+    db: AsyncSession = Depends(get_db)
+) -> WorkplaceInfo:
+    user_obj = user(request)
+    try:
+        return await add_skills_to_workplace(
+            user_obj, workplace_name, data, db
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error occupied: {err}"
+        )
+
+
+@workplace.delete("/{workplace_name}/skills", response_model=WorkplaceInfo)
+async def delete_skills(
+    request: Request,
+    workplace_name: str,
+    data: List[SkillID],
+    db: AsyncSession = Depends(get_db)
+) -> WorkplaceInfo:
+    user_obj = user(request)
+    try:
+        return await delete_skills_from_workplace(
+            user_obj, workplace_name, data, db
+        )
     except Exception as err:
         raise HTTPException(
             status_code=400,

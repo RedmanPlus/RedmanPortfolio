@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from portfolio.models import ORMModel
 from portfolio.models.project import ShortProjectInfo
-from portfolio.models.skill import SkillInfo
+from portfolio.models.skill import SkillID
 
 
 class NewWorkplace(BaseModel):
@@ -26,7 +26,7 @@ class WorkplaceInfo(ORMModel):
     is_current_workplace: Optional[bool] = None
     company_link: Optional[str] = None
     workplace_description: Optional[str] = None
-    skills: Optional[List[SkillInfo]] = None
+    skills: Optional[List[SkillID]] = None
     projects: Optional[List[ShortProjectInfo]] = None
 
 
